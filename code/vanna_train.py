@@ -390,6 +390,112 @@ Indexes:
         traceback.print_exc()
     print("--- Debug: Finished Explicit Custom Documentation Training ---")
 
+    # --- Add explicit DDL training for locations and comments tables ---
+    print("\n--- Debug: Starting Explicit DDL Training for Locations and Comments Tables ---")
+    try:
+        # DDL for locations table
+        locations_ddl = """
+        CREATE TABLE locations (
+            name TEXT,
+            tenant_id INTEGER,
+            location_id TEXT PRIMARY KEY,
+            location_type TEXT,
+            emails TEXT,
+            industry TEXT,
+            updated_date TIMESTAMP,
+            country TEXT,
+            street_address TEXT,
+            timezone TEXT,
+            postal_code TEXT,
+            locality TEXT,
+            street_address2 TEXT,
+            region TEXT
+        );
+        """
+        vn.add_ddl(locations_ddl)
+        vn.add_documentation("The locations table contains information about each business location, including address and tenant association.")
+
+        # DDL for comments table
+        comments_ddl = """
+        CREATE TABLE comments (
+            tenant_id INTEGER,
+            entity_id TEXT,
+            comment_id TEXT PRIMARY KEY,
+            text TEXT,
+            created_date TIMESTAMP,
+            location_updated_date TIMESTAMP,
+            overall_sentiment_score FLOAT,
+            text_language TEXT,
+            removed BOOLEAN
+        );
+        """
+        vn.add_ddl(comments_ddl)
+        vn.add_documentation("The comments table contains user reviews and metadata for each location or entity.")
+        print("DDL and documentation for locations and comments tables added.")
+    except Exception as e:
+        print(f"Error during Explicit DDL Training for Locations/Comments: {e}")
+        import traceback
+        traceback.print_exc()
+    print("--- Debug: Finished Explicit DDL Training for Locations and Comments Tables ---")
+
+    # --- Add explicit SQL Q&A training examples for join queries between comments and locations ---
+    print("\n--- Debug: Adding SQL Q&A Training Examples for Joins ---")
+    try:
+        # 1. How many comments are there for each location?
+        vn.add_question_sql(
+            question="How many comments are there for each location?",
+            sql="""
+                SELECT l.location_id, l.name, COUNT(c.comment_id) AS comment_count
+                FROM locations l
+                LEFT JOIN comments c ON l.location_id = c.entity_id
+                GROUP BY l.location_id, l.name
+                ORDER BY comment_count DESC;
+            """
+        )
+        # 2. What is the total number of comments for each tenant?
+        vn.add_question_sql(
+            question="What is the total number of comments for each tenant?",
+            sql="""
+                SELECT l.tenant_id, COUNT(c.comment_id) AS comment_count
+                FROM locations l
+                LEFT JOIN comments c ON l.location_id = c.entity_id
+                GROUP BY l.tenant_id
+                ORDER BY comment_count DESC;
+            """
+        )
+        # 3. How many locations have more than 10 comments?
+        vn.add_question_sql(
+            question="How many locations have more than 10 comments?",
+            sql="""
+                SELECT COUNT(*) AS locations_with_10plus_comments
+                FROM (
+                    SELECT l.location_id
+                    FROM locations l
+                    LEFT JOIN comments c ON l.location_id = c.entity_id
+                    GROUP BY l.location_id
+                    HAVING COUNT(c.comment_id) > 10
+                ) sub;
+            """
+        )
+        # 4. What is the average number of comments per location?
+        vn.add_question_sql(
+            question="What is the average number of comments per location?",
+            sql="""
+                SELECT AVG(comment_count) AS avg_comments_per_location
+                FROM (
+                    SELECT l.location_id, COUNT(c.comment_id) AS comment_count
+                    FROM locations l
+                    LEFT JOIN comments c ON l.location_id = c.entity_id
+                    GROUP BY l.location_id
+                ) sub;
+            """
+        )
+        print("SQL Q&A join training examples added.")
+    except Exception as e:
+        print(f"Error adding SQL Q&A join training examples: {e}")
+        import traceback
+        traceback.print_exc()
+    print("--- Debug: Finished Adding SQL Q&A Training Examples for Joins ---")
 
     # --- Check points after explicit training (from plan and manual DDL) ---
     # Remove the manual point checks that caused the AttributeError

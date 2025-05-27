@@ -137,7 +137,6 @@ vn = MyVanna(config={
 })
 
 print("\n--- Debug: Vanna Instance Configuration ---")
-print(vn.get_config())
 print("------------------------------------------")
 
 # Load database credentials from environment variables
@@ -181,6 +180,7 @@ else:
 # This starts the web server. Keep this process running.
 try:
     print("\nStarting Vanna Flask App...")
+    # NOTE: The Vanna instance is now trained on the locations and comments tables as well, due to the updated vanna_train.py training logic.
     app = VannaFlaskApp(vn)
     app.run() # This will block, running the web server
 except Exception as e:

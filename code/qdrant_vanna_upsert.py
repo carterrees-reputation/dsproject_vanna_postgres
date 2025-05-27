@@ -30,6 +30,7 @@ qdrant_client_instance = QdrantClient(
 )
 
 # Define Qdrant collection parameters
+# This collection is used for all tables, including locations and comments, as per the current Vanna training setup.
 collection_name = "vanna_testing"
 # Define vector parameters based on typical OpenAI embeddings (size 1536, Cosine distance)
 # Using VectorParams class for clarity as recommended by Qdrant docs
