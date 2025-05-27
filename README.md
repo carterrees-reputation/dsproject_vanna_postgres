@@ -164,7 +164,3 @@ OPENAI_API_KEY=your_openai_api_key
 - [Faker](https://faker.readthedocs.io/)
 - [PostgreSQL](https://www.postgresql.org/)
 
----
-
-## License
-MIT License
